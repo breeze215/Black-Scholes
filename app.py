@@ -195,7 +195,7 @@ def main():
             historical_volatility = np.log(dax30_data['Close'] / dax30_data['Close'].shift(1)).std() * np.sqrt(252)
             
             # Calculate hedge and PnL
-            df = calculate_hedge_and_pnl(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
+            df = calculate_pnl_and_hedges(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
             
             st.write(df)
 
