@@ -199,12 +199,12 @@ def main():
             delta, gamma, vega, theta, rho = greeks(d1, d2, N_d1, N_d2, curr_underlying_price, strike_price, vol, rr, t)
 
             # Display calculated call value and Greeks
-            st.write(f"Calculated Call Value: ${call_value:.2f}")
-            st.write(f"Delta: {delta:.4f}")
-            st.write(f"Gamma: {gamma:.4f}")
-            st.write(f"Vega: {vega:.4f}")
-            st.write(f"Theta: {theta:.4f}")
-            st.write(f"Rho: {rho:.4f}")
+            st.write(f"**Calculated Call Value:** ${call_value:.2f}")
+            st.write(f"**Delta:** {delta:.4f}")
+            st.write(f"**Gamma:** {gamma:.4f}")
+            st.write(f"**Vega:** {vega:.4f}")
+            st.write(f"**Theta:** {theta:.4f}")
+            st.write(f"**Rho:** {rho:.4f}")
 
             # Calculate hedge and PnL
             df = calculate_pnl_and_hedges(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
