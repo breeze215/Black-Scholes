@@ -169,49 +169,44 @@ def plot_hedging_table(df):
     return img_path
 
 # The main function that takes all the user inputs and executes the code.
-def calculate_option(curr_call_price, curr_underlying_price, strike_price, vol, rr, t, num_options):
-    try:
-        curr_call_price = float(curr_call_price)
-        curr_underlying_price = float(curr_underlying_price)
-        strike_price = float(strike_price)
-        vol = float(vol)
-        rr = float(rr)
-        t = float(t)
-        num_options = float(num_options)
+def main():
+    st.title("Option Hedging Strategy")
 
-        d1, d2, N_d1, N_d2, call_value = calc(curr_underlying_price, strike_price, vol, rr, t)
-        delta, gamma, vega, theta, rho = greeks(d1, d2, N_d1, N_d2, curr_underlying_price, strike_price, vol, rr, t)
+    curr_call_price = st.text_input("Current Call Price in $")
+    curr_underlying_price = st.text_input("Current Price of the Underlying $")
+    strike_price = st.text_input("Strike Price in $")
+    vol = st.text_input("Volatility in %")
+    rr = st.text_input("Risk-Free Interest Rate in %")
+    t = st.text_input("Time to Maturity in Years")
+    num_options = st.text_input("Number of Options")
 
-        result_text = (
-            f"Call Value: ${call_value:.2f}\n"
-            f"Delta: {delta:.2f}\n"
-            f"Gamma: {gamma:.2f}\n"
-            f"Vega: {vega:.2f}\n"
-            f"Theta: {theta:.2f}\n"
-            f"Rho: {rho:.2f}\n"
-        )
+    if st.button("Calculate"):
+        if all([curr_call_price, curr_underlying_price, strike_price, vol, rr, t, num_options]):
+            curr_call_price = float(curr_call_price)
+            curr_underlying_price = float(curr_underlying_price)
+            strike_price = float(strike_price)
+            vol = float(vol)
+            rr = float(rr)
+            t = float(t)
+            num_options = float(num_options)
 
-        dax30_data = fetch_dax30_data()
-        historical_volatility = calculate_volatility(dax30_data)
+            # Fetch historical data and calculate volatility
+            dax30_data = yf.download('^GDAXI', start='2022-01-01', end='2023-01-01')
+            historical_volatility = np.log(dax30_data['Close'] / dax30_data['Close'].shift(1)).std() * np.sqrt(252)
+            
+            # Calculate hedge and PnL
+            df = calculate_hedge_and_pnl(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
+            
+            st.write(df)
 
-        df = calculate_pnl_and_hedges(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
+            # Plotting
+            fig, ax = plt.subplots()
+            ax.axis('off')
+            ax.axis('tight')
+            table = ax.table(cellText=df.values, colLabels=df.columns, cellLoc='center', loc='center')
+            table.scale(1, 1.5)
+            plt.title("Hedging Strategy Table")
+            st.pyplot(fig)
 
-        hedging_table_path = plot_hedging_table(df)
-
-        total_pnl = df.iloc[-1]['PnL']
-        result_text += f"\nTotal PnL from hedging: ${total_pnl:.2f}\n"
-        if total_pnl > 0:
-            result_text += "The hedging strategy is profitable."
-        else:
-            result_text += "The hedging strategy is not profitable."
-
-        volga_vs_volatility_path = display(curr_underlying_price, strike_price, rr, t)
-
-        return result_text, volga_vs_volatility_path, hedging_table_path
-    except Exception as e:
-        return f"Error: {str(e)}", None, None
-
-st.title("DAX30 Call Option Analysis and Hedging")
-
-curr_call_price = st.text_input("Current Call Price in $", "")
-curr_underlying_price = st.text_input("Current Price of the Under
+if __name__ == "__main__":
+    main()
