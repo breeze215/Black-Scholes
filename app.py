@@ -178,26 +178,25 @@ def main():
             d1, d2, N_d1, N_d2, call_value = calc(curr_underlying_price, strike_price, vol, rr, t)
             delta, gamma, vega, theta, rho = greeks(d1, d2, N_d1, N_d2, curr_underlying_price, strike_price, vol, rr, t)
             
-            st.write(f"Call Value: {call_value}")
-            st.write(f"Delta: {delta}")
-            st.write(f"Gamma: {gamma}")
-            st.write(f"Vega: {vega}")
-            st.write(f"Theta: {theta}")
-            st.write(f"Rho: {rho}")
+            st.markdown(f"### Calculated Call Value: ${call_value:.2f}")
+            st.markdown(f"**Delta:** {delta:.4f}")
+            st.markdown(f"**Gamma:** {gamma:.4f}")
+            st.markdown(f"**Vega:** {vega:.4f}")
+            st.markdown(f"**Theta:** {theta:.4f}")
+            st.markdown(f"**Rho:** {rho:.4f}")
 
-            # Fetch historical data and calculate volatility
+            volga_fig = display_volga_vs_volatility(curr_underlying_price, strike_price, rr, t)
+            st.pyplot(volga_fig)
+
             dax30_data = fetch_dax30_data()
             historical_volatility = calculate_volatility(dax30_data)
             
-            # Calculate hedge and PnL
             df = calculate_pnl_and_hedges(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
             
-            st.write("Hedging Strategy Table")
-            st.dataframe(df)
+            st.write(df)
 
-            # Plotting Volga vs. Volatility
-            volga_fig = display(curr_underlying_price, strike_price, rr, t)
-            st.pyplot(volga_fig)
+            hedging_table_fig = plot_hedging_table(df)
+            st.pyplot(hedging_table_fig)
 
 if __name__ == "__main__":
     main()
