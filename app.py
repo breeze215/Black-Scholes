@@ -196,7 +196,7 @@ def main():
             st.dataframe(df)
 
             # Plotting Volga vs. Volatility
-            volga_fig = display_volga_vs_volatility(curr_underlying_price, strike_price, rr, t)
+            volga_fig = display(curr_underlying_price, strike_price, rr, t)
             st.pyplot(volga_fig)
 
 if __name__ == "__main__":
