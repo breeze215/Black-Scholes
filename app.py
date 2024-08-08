@@ -195,8 +195,7 @@ def main():
             
             st.write(df)
 
-            hedging_table_fig = plot_hedging_table(df)
-            st.pyplot(hedging_table_fig)
+           
 
 if __name__ == "__main__":
     main()
