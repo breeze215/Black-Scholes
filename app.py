@@ -185,7 +185,7 @@ def main():
             st.markdown(f"**Theta:** {theta:.4f}")
             st.markdown(f"**Rho:** {rho:.4f}")
 
-            volga_fig = display_volga_vs_volatility(curr_underlying_price, strike_price, rr, t)
+            volga_fig = display(curr_underlying_price, strike_price, rr, t)
             st.pyplot(volga_fig)
 
             dax30_data = fetch_dax30_data()
