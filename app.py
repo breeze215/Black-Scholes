@@ -87,11 +87,10 @@ def display(curr_underlying_price, strike_price, rr, t):
 
     anim = FuncAnimation(fig, animate, interval=100)
     
-    img_path = "volga_vs_volatility.png"
-    plt.savefig(img_path)
     plt.close(fig)
     
-    return img_path
+    return fig
+
 
 def simulate_future_prices(curr_underlying_price, historical_volatility, months=12):
     future_prices = []
@@ -154,20 +153,6 @@ def calculate_pnl_and_hedges(curr_underlying_price, strike_price, vol, rr, t, nu
 
     return pd.DataFrame(data)
 
-def plot_hedging_table(df):
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.axis('off')
-    ax.axis('tight')
-    table = ax.table(cellText=df.values, colLabels=df.columns, cellLoc='center', loc='center')
-    table.scale(1, 1.5)
-    plt.title("Hedging Strategy Table")
-    
-    img_path = "hedging_table.png"
-    plt.savefig(img_path)
-    plt.close(fig)
-    
-    return img_path
-
 # The main function that takes all the user inputs and executes the code.
 def main():
     st.title("Option Hedging Strategy")
@@ -194,7 +179,11 @@ def main():
             delta, gamma, vega, theta, rho = greeks(d1, d2, N_d1, N_d2, curr_underlying_price, strike_price, vol, rr, t)
             
             st.write(f"Call Value: {call_value}")
-            st.write(f"Delta: {delta}, Gamma: {gamma}, Vega: {vega}, Theta: {theta}, Rho: {rho}")
+            st.write(f"Delta: {delta}")
+            st.write(f"Gamma: {gamma}")
+            st.write(f"Vega: {vega}")
+            st.write(f"Theta: {theta}")
+            st.write(f"Rho: {rho}")
 
             # Fetch historical data and calculate volatility
             dax30_data = fetch_dax30_data()
@@ -203,20 +192,12 @@ def main():
             # Calculate hedge and PnL
             df = calculate_pnl_and_hedges(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
             
-            st.write(df)
-
-            # Plotting table
-            fig, ax = plt.subplots()
-            ax.axis('off')
-            ax.axis('tight')
-            table = ax.table(cellText=df.values, colLabels=df.columns, cellLoc='center', loc='center')
-            table.scale(1, 1.5)
-            plt.title("Hedging Strategy Table")
-            st.pyplot(fig)
+            st.write("Hedging Strategy Table")
+            st.dataframe(df)
 
             # Plotting Volga vs. Volatility
-            volga_img_path = display_volga_vs_volatility(curr_underlying_price, strike_price, rr, t)
-            st.image(volga_img_path, caption='Volga vs. Volatility')
+            volga_fig = display_volga_vs_volatility(curr_underlying_price, strike_price, rr, t)
+            st.pyplot(volga_fig)
 
 if __name__ == "__main__":
     main()
