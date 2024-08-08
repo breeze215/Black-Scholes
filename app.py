@@ -172,13 +172,13 @@ def plot_hedging_table(df):
 def main():
     st.title("Option Hedging Strategy")
 
-    curr_call_price = st.text_input("Current Call Price in $", "")
-    curr_underlying_price = st.text_input("Current Price of the Underlying $", "")
-    strike_price = st.text_input("Strike Price in $", "")
-    vol = st.text_input("Volatility in %", "")
-    rr = st.text_input("Risk-Free Interest Rate in %", "")
-    t = st.text_input("Time to Maturity in Years", "")
-    num_options = st.text_input("Number of Options", "")
+    curr_call_price = st.text_input("Current Call Price in $")
+    curr_underlying_price = st.text_input("Current Price of the Underlying $")
+    strike_price = st.text_input("Strike Price in $")
+    vol = st.text_input("Volatility in %")
+    rr = st.text_input("Risk-Free Interest Rate in %")
+    t = st.text_input("Time to Maturity in Years")
+    num_options = st.text_input("Number of Options")
 
     if st.button("Calculate"):
         if all([curr_call_price, curr_underlying_price, strike_price, vol, rr, t, num_options]):
@@ -190,34 +190,33 @@ def main():
             t = float(t)
             num_options = float(num_options)
 
+            d1, d2, N_d1, N_d2, call_value = calc(curr_underlying_price, strike_price, vol, rr, t)
+            delta, gamma, vega, theta, rho = greeks(d1, d2, N_d1, N_d2, curr_underlying_price, strike_price, vol, rr, t)
+            
+            st.write(f"Call Value: {call_value}")
+            st.write(f"Delta: {delta}, Gamma: {gamma}, Vega: {vega}, Theta: {theta}, Rho: {rho}")
+
             # Fetch historical data and calculate volatility
             dax30_data = fetch_dax30_data()
             historical_volatility = calculate_volatility(dax30_data)
             
-            # Calculate the call value and Greeks
-            d1, d2, N_d1, N_d2, call_value = calc(curr_underlying_price, strike_price, vol, rr, t)
-            delta, gamma, vega, theta, rho = greeks(d1, d2, N_d1, N_d2, curr_underlying_price, strike_price, vol, rr, t)
-
-            # Display calculated call value and Greeks
-            st.write(f"**Calculated Call Value:** ${call_value:.2f}")
-            st.write(f"**Delta:** {delta:.4f}")
-            st.write(f"**Gamma:** {gamma:.4f}")
-            st.write(f"**Vega:** {vega:.4f}")
-            st.write(f"**Theta:** {theta:.4f}")
-            st.write(f"**Rho:** {rho:.4f}")
-
             # Calculate hedge and PnL
             df = calculate_pnl_and_hedges(curr_underlying_price, strike_price, vol, rr, t, num_options, historical_volatility)
             
             st.write(df)
 
             # Plotting table
-            img_path = plot_hedging_table(df)
-            st.image(img_path)
+            fig, ax = plt.subplots()
+            ax.axis('off')
+            ax.axis('tight')
+            table = ax.table(cellText=df.values, colLabels=df.columns, cellLoc='center', loc='center')
+            table.scale(1, 1.5)
+            plt.title("Hedging Strategy Table")
+            st.pyplot(fig)
 
-            # Plotting Volga vs Volatility
-            img_path = display(curr_underlying_price, strike_price, rr, t)
-            st.image(img_path)
+            # Plotting Volga vs. Volatility
+            volga_img_path = display_volga_vs_volatility(curr_underlying_price, strike_price, rr, t)
+            st.image(volga_img_path, caption='Volga vs. Volatility')
 
 if __name__ == "__main__":
     main()
